@@ -23,14 +23,21 @@
 
 <script>
 import { useUserStore } from '@/store';
+import axios from 'axios';
 
 export default {
   name: 'App',
   setup() {
     const userStore = useUserStore();
 
-    const logout = () => {
-      userStore.logout();
+    const logout = async () => {
+      try {
+        await axios.post('http://localhost:5000/api/logout');  // Call the new logout endpoint
+        userStore.logout();
+        alert('Logged out successfully');
+      } catch (error) {
+        console.error('Failed to logout:', error);
+      }
     };
 
     return { userStore, logout };

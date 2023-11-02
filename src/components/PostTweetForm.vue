@@ -1,43 +1,45 @@
 <!-- src/components/PostTweetForm.vue -->
 <template>
-    <div>
-      <h3>Post a Tweet</h3>
-      <form @submit.prevent="postTweet">
-        <div>
-          <label for="content">Tweet:</label>
-          <input type="text" id="content" v-model="content" required>
-        </div>
-        <button type="submit">Post</button>
-      </form>
+  <div>
+    <h2>Post a Tweet</h2>
+    <form @submit.prevent="postTweet">
+      <div>
+        <label for="content">Tweet:</label>
+        <input type="text" id="content" v-model="content">
+      </div>
+      <button type="submit" :disabled="!userStore.user">Post Tweet</button>
+    </form>
+    <div v-if="!userStore.user">
+      Please <router-link to="/login">login</router-link> to post a tweet.
     </div>
-  </template>
-  
-  <script>
-  import axios from "axios";
-  
-  export default {
-    name: "PostTweetForm",
-    data() {
-      return {
-        content: "",
-      };
-    },
-    methods: {
-      async postTweet() {
-        try {
-          const response = await axios.post("http://localhost:5000/api/post_tweet", {
-            content: this.content,
-          });
-          console.log(response.data);
-          this.content = "";  // Clear the input field
-          alert('Tweet posted successfully!');
-          // Optionally: You might want to refresh the tweet list or navigate to a different page
-        } catch (error) {
-          console.error("An error occurred while posting the tweet:", error);
-          alert('Failed to post tweet.');
+  </div>
+</template>
+
+<script>
+import { ref } from 'vue';
+import { useUserStore } from '@/store';  // Import user store
+import axios from 'axios';
+
+export default {
+  setup() {
+    const content = ref('');
+    const userStore = useUserStore();
+
+    const postTweet = async () => {
+      try {
+        if (!userStore.user) {  // Check if user is logged in
+          alert('Please login to post a tweet');
+          return;
         }
-      },
-    },
-  };
-  </script>
-  
+        await axios.post('http://localhost:5000/api/post-tweet', { content: content.value });
+        alert('Tweet posted successfully');
+        content.value = '';
+      } catch (error) {
+        console.error('Failed to post tweet:', error);
+      }
+    };
+
+    return { content, postTweet, userStore };
+  },
+};
+</script>
