@@ -17,32 +17,33 @@
 </template>
   
 <script>
-import axios from "axios";
+import { ref } from 'vue';
+import axios from 'axios';
+import { useUserStore } from '@/store';
 
 export default {
-  data() {
-    return {
-      username: "",
-      password: "",
-    };
-  },
-  methods: {
-    async login() {
+  setup() {
+    const username = ref('');
+    const password = ref('');
+    const userStore = useUserStore();  // Use Pinia store
+
+    const login = async () => {
       try {
         const response = await axios.post("http://localhost:5000/api/login", {
-          username: this.username,
-          password: this.password,
+          username: username.value,
+          password: password.value,
         });
-        // Emit user data to parent component
-        this.$emit("login-success", response.data.user);
-        this.$store.commit('setUser', response.data.user); 
+
+        userStore.setUser(response.data.user);
+        console.log('User after login:', userStore.user);  // Add this line
+        // ...
       } catch (error) {
         console.error("An error occurred while logging in:", error);
         alert('Failed to login.');
       }
+    };
 
-    },
+    return { username, password, login };
   },
 };
 </script>
-  

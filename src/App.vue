@@ -6,8 +6,8 @@
       <div>
         <router-link to="/">Home</router-link>
       </div>
-      <span v-if="$store.state.user">
-        Hi {{ $store.state.user.username }}
+      <span v-if="userStore.user">
+        Hi {{ userStore.user.username }}
         <button @click="logout">Logout</button>
         <router-link to="/post-tweet">Post Tweet</router-link>
       </span>
@@ -22,17 +22,18 @@
 </template>
 
 <script>
+import { useUserStore } from '@/store';
+
 export default {
   name: 'App',
-  data() {
-    return {
-      user: null,  // Store user data here
+  setup() {
+    const userStore = useUserStore();
+
+    const logout = () => {
+      userStore.logout();
     };
+
+    return { userStore, logout };
   },
-  methods: {
-    logout() {
-      this.$store.commit('logout');
-    }
-  }
 };
 </script>
