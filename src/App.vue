@@ -1,25 +1,37 @@
 <!-- src/App.vue -->
 <template>
   <div id="app">
-    <nav>
-      <!-- Show Hi {username} when user is logged in -->
-      <div>
-        <router-link to="/">Home</router-link>
+    <nav class="bg-blue-600 p-4 text-white">
+      <div class="container mx-auto flex justify-between items-center">
+        <router-link to="/" class="text-2xl font-bold text-white hover:text-gray-200">
+          Home
+        </router-link>
+        <div class="flex items-center">
+          <span v-if="userStore.user" class="mr-4">
+            Hi {{ userStore.user.username }}
+          </span>
+          <span v-if="userStore.user" class="mr-4">
+            <button @click="logout" class="bg-red-500 px-4 py-2 rounded text-white hover:bg-red-400">
+              Logout
+            </button>
+          </span>
+          <span v-if="userStore.user" class="mr-4">
+            <router-link to="/post-tweet" class="text-white hover:text-gray-200">
+              Post Tweet
+            </router-link>
+          </span>
+          <span v-else class="mr-4">
+            <router-link to="/login" class="text-white hover:text-gray-200">
+              Login
+            </router-link>
+          </span>
+        </div>
       </div>
-      <span v-if="userStore.user">
-        Hi {{ userStore.user.username }}
-        <button @click="logout">Logout</button>
-        <router-link to="/post-tweet">Post Tweet</router-link>
-      </span>
-      <span v-else>
-        <!-- Change Login to Logout when user is logged in -->
-        <router-link to="/login">Login</router-link> |
-      </span>
     </nav>
-    <!-- Pass user data as props -->
     <router-view />
   </div>
 </template>
+
 
 <script>
 import { useUserStore } from '@/store';
