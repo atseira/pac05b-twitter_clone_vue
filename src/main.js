@@ -13,16 +13,30 @@ app.use(pinia);
 
 axios.defaults.withCredentials = true;
 axios.interceptors.request.use((config) => {
-    // Access the store within the interceptor
-    const token = useUserStore(pinia).token;
-    console.log('Sending token:', token);  // Log the token here
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  }, (error) => {
-    return Promise.reject(error);
-  });
+  const token = useUserStore(pinia).token;
+  console.log('Sending token:', token);
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+}, (error) => {
+  return Promise.reject(error);
+});
+
+const userStore = useUserStore(pinia);
+
+// Fetch the current user data on page reload
+if (userStore.token) {
+  axios.get('http://localhost:5000/api/me')
+    .then(response => {
+      console.log('API /me response:', response.data);  // Log the entire API response
+      userStore.setUser(response.data.user);
+      console.log('User rehydrated:', response.data.user);
+    })
+    .catch(error => {
+      console.error('Failed to fetch user:', error);
+      userStore.logout();
+    });
+}
 
 app.mount('#app');
-  

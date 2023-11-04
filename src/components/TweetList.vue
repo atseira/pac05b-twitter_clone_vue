@@ -4,18 +4,18 @@
       <h2 class="text-xl font-semibold mb-2">{{ tweet.username }}</h2>
       <p class="text-gray-600 mb-2">{{ tweet.content }}</p>
       <div class="flex items-center">
-        <button :disabled="!userStore.user" @click="likeTweet(tweet.id)"
-          class="text-blue-500 hover:text-blue-600 focus:outline-none">
-          Like
+        <button :disabled="!userStore.user" @click="toggleLike(tweet)"
+          :class="{ 'text-blue-500': !tweet.liked, 'text-red-500': tweet.liked }"
+          class="hover:text-blue-600 focus:outline-none">
+          {{ tweet.liked ? 'Unlike' : 'Like' }}
         </button>
         <span class="ml-2 text-sm text-gray-500">{{ tweet.likes }} {{ tweet.likes === 1 ? 'Like' : 'Likes' }}</span>
       </div>
     </div>
   </div>
 </template>
-
+  
 <script>
-import Vue from 'vue';
 import axios from "axios";
 import { useUserStore } from "@/store";
 
@@ -30,28 +30,32 @@ export default {
     try {
       const response = await axios.get("http://localhost:5000/api/tweets");
       console.log("API Response:", response.data);
-      this.tweets = response.data.tweets;
+      this.tweets = response.data.tweets;  // Assign the tweets directly without mapping
     } catch (error) {
       console.error("An error occurred while fetching data: ", error);
     }
   },
   methods: {
-    async likeTweet(tweetId) {
+    async toggleLike(tweet) {
       try {
         const headers = {
-          'Authorization': `Bearer ${this.userStore.token}`, // Include the token here
+          'Authorization': `Bearer ${this.userStore.token}`,
           'Content-Type': 'application/json',
         };
 
-        const response = await axios.post(`http://localhost:5000/api/tweets/${tweetId}/like`, {}, { headers: headers });
-        console.log("Like Response:", response.data);
-        // Updating the like count in the UI
-        const tweet = this.tweets.find(t => t.id === tweetId);
-        if (tweet) {
-          Vue.set(tweet, 'likes', response.data.likes);
-        }
+        const response = await axios.post(`http://localhost:5000/api/tweets/${tweet.id}/like`, {}, { headers: headers });
+        console.log("Like/Unlike Response:", response.data);
+        // Find the index of the tweet to update
+        const tweetIndex = this.tweets.findIndex(t => t.id === tweet.id);
+
+        // Update the tweet in the array
+        this.tweets[tweetIndex] = {
+          ...tweet,
+          likes: response.data.likes,
+          liked: response.data.message === 'Tweet liked'
+        };
       } catch (error) {
-        console.error("An error occurred while liking the tweet: ", error);
+        console.error("An error occurred while toggling the like status: ", error);
       }
     }
   },
