@@ -51,7 +51,29 @@ export default {
       }
     },
     // Existing toggleLike() method here...
-    
+    async toggleLike(tweet) {
+      try {
+        const headers = {
+          'Authorization': `Bearer ${this.userStore.token}`,
+          'Content-Type': 'application/json',
+        };
+
+        const response = await axios.post(`http://localhost:5000/api/tweets/${tweet.id}/like`, {}, { headers: headers });
+        console.log("Like/Unlike Response:", response.data);
+        // Find the index of the tweet to update
+        const tweetIndex = this.tweets.findIndex(t => t.id === tweet.id);
+
+        // Update the tweet in the array
+        this.tweets[tweetIndex] = {
+          ...tweet,
+          likes: response.data.likes,
+          liked: response.data.message === 'Tweet liked'
+        };
+      } catch (error) {
+        console.error("An error occurred while toggling the like status: ", error);
+      }
+    },
+
     // New method to change page
     async changePage(newPage) {
       this.currentPage = newPage;
