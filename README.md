@@ -1,5 +1,8 @@
 # klonx-vue
 
+Penjelasan lebih lengkap, silakan lihat repo backend-nya:
+https://github.com/atseira/pac05a-twitter_clone_flask
+
 ## Project setup
 ```
 npm install
