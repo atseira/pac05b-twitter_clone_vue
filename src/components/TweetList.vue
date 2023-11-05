@@ -4,6 +4,10 @@
       <div v-for="tweet in tweets" :key="tweet.id" class="bg-white p-6 rounded-lg shadow-md">
         <h2 class="text-xl font-semibold mb-2">{{ tweet.username }}</h2>
         <p class="text-gray-600 mb-2">{{ tweet.content }}</p>
+        <!-- Conditionally display image -->
+        <div v-if="tweet.image_url" class="mb-2">
+          <img :src="tweet.image_url" alt="Tweet image" class="rounded w-full h-auto" />
+        </div>
         <div class="flex items-center">
           <button :disabled="!userStore.user" @click="toggleLike(tweet)"
             :class="{ 'text-blue-500': !tweet.liked, 'text-red-500': tweet.liked }"
@@ -40,7 +44,6 @@ export default {
     await this.fetchTweets();
   },
   methods: {
-    // New method to fetch tweets
     async fetchTweets() {
       try {
         const response = await axios.get(`http://localhost:5000/api/tweets?page=${this.currentPage}&per_page=${this.itemsPerPage}`);
@@ -50,7 +53,6 @@ export default {
         console.error("An error occurred while fetching data: ", error);
       }
     },
-    // Existing toggleLike() method here...
     async toggleLike(tweet) {
       try {
         const headers = {
@@ -74,7 +76,6 @@ export default {
       }
     },
 
-    // New method to change page
     async changePage(newPage) {
       this.currentPage = newPage;
       await this.fetchTweets();

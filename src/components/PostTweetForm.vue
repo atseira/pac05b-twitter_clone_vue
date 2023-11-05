@@ -11,11 +11,18 @@
         <div class="rounded-md shadow-sm">
           <div>
             <label for="content" class="sr-only">Tweet:</label>
-            <textarea id="content" v-model="content" rows="4" class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" placeholder="What's happening?"></textarea>
+            <textarea id="content" v-model="content" rows="4"
+              class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+              placeholder="Ada apa nih?"></textarea>
+          </div>
+          <div>
+            <label for="image" class="sr-only">Image:</label>
+            <input type="file" id="image" ref="image" class="mt-2">
           </div>
         </div>
         <div>
-          <button type="submit" :disabled="!userStore.user" class="w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+          <button type="submit" :disabled="!userStore.user"
+            class="w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
             Post Tweet
           </button>
         </div>
@@ -37,7 +44,6 @@ export default {
   setup() {
     const content = ref('');
     const userStore = useUserStore();
-    console.log('Token:', userStore.token); 
     const postTweet = async () => {
       try {
         if (!userStore.user) {  // Check if user is logged in
@@ -46,11 +52,18 @@ export default {
         }
 
         const headers = {
-          'Authorization': `Bearer ${userStore.token}`, // Include the token here
-          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${userStore.token}`,
         };
 
-        await axios.post('http://localhost:5000/api/post-tweet', { content: content.value }, { headers: headers });
+        // Create FormData for image upload
+        const formData = new FormData();
+        formData.append('content', content.value);
+        const imageFile = document.querySelector('#image').files[0];
+        if (imageFile) {
+          formData.append('image', imageFile);
+        }
+
+        await axios.post('http://localhost:5000/api/post-tweet', formData, { headers: headers });
         alert('Tweet posted successfully');
         content.value = '';
       } catch (error) {
